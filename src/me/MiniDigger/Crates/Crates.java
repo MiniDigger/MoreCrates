@@ -44,7 +44,7 @@ public class Crates extends JavaPlugin implements Listener {
 	private final String consolPrefix = ChatColor.RED + "[" + ChatColor.GRAY
 			+ "MoreCrates" + ChatColor.RED + "]";
 
-	private FancyMessage getPrefix() {
+	public FancyMessage getPrefix() {
 		return new FancyMessage("[").color(ChatColor.RED).then("Crates")
 				.color(ChatColor.GRAY).tooltip("Made by MiniDigger").then("] ")
 				.color(ChatColor.RED);

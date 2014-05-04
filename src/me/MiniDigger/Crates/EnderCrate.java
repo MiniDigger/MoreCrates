@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
@@ -51,7 +52,12 @@ public class EnderCrate implements ConfigurationSerializable {
 	public void open(Player p) {
 		if (p.hasPermission("endercrate.open")) {
 			p.openInventory(getInv());
-		}
+		}else {
+			Crates.getInstance().getPrefix().then("You don't have the ")
+			.color(ChatColor.RED).then("permission ")
+			.color(ChatColor.RED).tooltip("endercrate.open")
+			.then(" to open this crate!").color(ChatColor.RED);
+}
 	}
 
 	public UUID getUuid() {

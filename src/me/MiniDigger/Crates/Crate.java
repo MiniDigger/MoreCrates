@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.SerializableAs;
@@ -51,6 +52,11 @@ public class Crate implements ConfigurationSerializable {
 	public void open(Player p) {
 		if (p.hasPermission("crate.open")) {
 			p.openInventory(getInv());
+		} else {
+			Crates.getInstance().getPrefix().then("You don't have the ")
+					.color(ChatColor.RED).then("permission ")
+					.color(ChatColor.RED).tooltip("crate.open")
+					.then(" to open this crate!").color(ChatColor.RED);
 		}
 	}
 
