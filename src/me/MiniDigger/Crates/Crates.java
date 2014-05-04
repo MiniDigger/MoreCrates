@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -218,6 +219,9 @@ public class Crates extends JavaPlugin implements Listener {
 			} else if (isEnderCrate(e.getClickedBlock())) {
 				getEnderCrate(e.getPlayer()).open(e.getPlayer());
 			}
+			e.setCancelled(true);
+			e.setUseItemInHand(Result.DENY);
+			e.setUseInteractedBlock(Result.DENY);
 		}
 	}
 
