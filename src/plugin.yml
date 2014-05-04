@@ -1,0 +1,25 @@
+name: MoreCrates
+author: MiniDigger
+version: 1.0.3
+main: me.MiniDigger.Crates.Crates
+commands:
+    crate:
+      description: Adds a crate to your inventory or the the inventory of the specified player
+      usage: /<command> [player]
+      permission: crate.command
+      permission-message: You don't have the required permission (<permission>) to spawn a crate. Sorry.
+    endercrate:
+      description: Adds a endercrate to your inventory or the the inventory of the specified player
+      usage: /<command> [player]
+      permission: endercrate.command
+      permission-message: You don't have the required permission (<permission>) to spawn a endercrate. Sorry.
+    openendercrate:
+      description: Opens your EnderCrate or the EnderCrate of the specified player
+      usage: /<command> [player]
+      permission: openendercrate.command
+      permission-message: You don't have the required permission (<permission>) to spawn a endercrate. Sorry.
+    crates:
+      description: Administartion commands for MoreCrates
+      usage: /<command> update
+      permission: crate.admin
+      permission-message: You don't have the required permission (<permission>). Sorry.

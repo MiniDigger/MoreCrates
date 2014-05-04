@@ -1,0 +1,26 @@
+#Should the plugin notify admin if there is an update?
+look-for-updates: true
+#Should the plugin automaticly download updates?
+download-updates: false
+enable-crafting: true
+crate:
+    #The Title of the Inventory and the display name of the item
+    display-name: 'Crate'
+    #The Description of the Item
+    lore:
+    - 'Place it to create a Crate'
+    #The Size of the Crate
+    size: 2
+endercrate:
+    #The Title of the Inventory and the display name of the item
+    display-name: 'EnderCrate'
+    #The Description of the Item
+    lore:
+    - 'Place it to create a EnderCrate'
+    #The Size of the Crate
+    size: 1
+#DO NOT EDIT THIS!
+crates:
+    n: 0
+endercrates:
+    n: 0
