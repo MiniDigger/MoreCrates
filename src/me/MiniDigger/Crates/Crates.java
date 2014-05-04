@@ -229,6 +229,9 @@ public class Crates extends JavaPlugin implements Listener {
 			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), crate);
 			for (ItemStack is : getCrate(e.getBlock().getLocation()).getInv()
 					.getContents()) {
+				if (is == null) {
+					continue;
+				}
 				e.getBlock().getWorld()
 						.dropItem(e.getBlock().getLocation(), is);
 			}
