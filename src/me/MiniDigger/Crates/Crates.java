@@ -209,24 +209,34 @@ public class Crates extends JavaPlugin implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void onCrateClick(PlayerInteractEvent e) {
+	@EventHandler(priority = EventPriority.LOW)
+	public void onCrateClick(final PlayerInteractEvent e) {
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			boolean b = false;
-			if (isCrate(e.getClickedBlock())) {
-				openCrates.put(e.getPlayer().getUniqueId(), e.getClickedBlock()
-						.getLocation());
-				getCrate(e.getClickedBlock().getLocation()).open(e.getPlayer());
-				b = true;
-			} else if (isEnderCrate(e.getClickedBlock())) {
-				getEnderCrate(e.getPlayer()).open(e.getPlayer());
-				b = true;
-			}
-			if (b) {
-				e.setCancelled(true);
-				e.setUseItemInHand(Result.DENY);
-				e.setUseInteractedBlock(Result.DENY);
-			}
+			Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+
+				@Override
+				public void run() {
+					boolean b = false;
+					if(e.isCancelled()){
+						return;
+					}
+					if (isCrate(e.getClickedBlock())) {
+						openCrates.put(e.getPlayer().getUniqueId(), e
+								.getClickedBlock().getLocation());
+						getCrate(e.getClickedBlock().getLocation()).open(
+								e.getPlayer());
+						b = true;
+					} else if (isEnderCrate(e.getClickedBlock())) {
+						getEnderCrate(e.getPlayer()).open(e.getPlayer());
+						b = true;
+					}
+					if (b) {
+						e.setCancelled(true);
+						e.setUseItemInHand(Result.DENY);
+						e.setUseInteractedBlock(Result.DENY);
+					}
+				}
+			}, 2);
 		}
 	}
 
