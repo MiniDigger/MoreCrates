@@ -226,6 +226,11 @@ public class Crates extends JavaPlugin implements Listener {
 			e.setCancelled(true);
 			e.getBlock().setType(Material.AIR);
 			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), crate);
+			for (ItemStack is : getCrate(e.getBlock().getLocation()).getInv()
+					.getContents()) {
+				e.getBlock().getWorld()
+						.dropItem(e.getBlock().getLocation(), is);
+			}
 			getConfig().set("crates.n", getConfig().getInt("crates.n") - 1);
 		} else if (isEnderCrate(e.getBlock())) {
 			e.setCancelled(true);
