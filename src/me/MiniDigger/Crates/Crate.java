@@ -50,7 +50,10 @@ public class Crate implements ConfigurationSerializable {
 	}
 
 	public void open(Player p) {
-		if (p.hasPermission("crate.open")) {
+		if (!Crates.getInstance().getConfig()
+				.getBoolean("use-perms-for-opening")) {
+			p.openInventory(getInv());
+		} else if (p.hasPermission("crate.open")) {
 			p.openInventory(getInv());
 		} else {
 			Crates.getInstance().getPrefix().then("You don't have the ")

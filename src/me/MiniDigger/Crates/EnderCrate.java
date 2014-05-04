@@ -50,14 +50,17 @@ public class EnderCrate implements ConfigurationSerializable {
 	}
 
 	public void open(Player p) {
-		if (p.hasPermission("endercrate.open")) {
+		if (!Crates.getInstance().getConfig()
+				.getBoolean("use-perms-for-opening")) {
 			p.openInventory(getInv());
-		}else {
+		} else if (p.hasPermission("endercrate.open")) {
+			p.openInventory(getInv());
+		} else {
 			Crates.getInstance().getPrefix().then("You don't have the ")
-			.color(ChatColor.RED).then("permission ")
-			.color(ChatColor.RED).tooltip("endercrate.open")
-			.then(" to open this crate!").color(ChatColor.RED);
-}
+					.color(ChatColor.RED).then("permission ")
+					.color(ChatColor.RED).tooltip("endercrate.open")
+					.then(" to open this crate!").color(ChatColor.RED);
+		}
 	}
 
 	public UUID getUuid() {

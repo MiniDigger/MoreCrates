@@ -3,6 +3,7 @@ look-for-updates: true
 #Should the plugin automaticly download updates?
 download-updates: false
 enable-crafting: true
+use-perms-for-opening: true
 crate:
     #The Title of the Inventory and the display name of the item
     display-name: 'Crate'

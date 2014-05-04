@@ -212,16 +212,21 @@ public class Crates extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onCrateClick(PlayerInteractEvent e) {
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			boolean b = false;
 			if (isCrate(e.getClickedBlock())) {
 				openCrates.put(e.getPlayer().getUniqueId(), e.getClickedBlock()
 						.getLocation());
 				getCrate(e.getClickedBlock().getLocation()).open(e.getPlayer());
+				b = true;
 			} else if (isEnderCrate(e.getClickedBlock())) {
 				getEnderCrate(e.getPlayer()).open(e.getPlayer());
+				b = true;
 			}
-			e.setCancelled(true);
-			e.setUseItemInHand(Result.DENY);
-			e.setUseInteractedBlock(Result.DENY);
+			if (b) {
+				e.setCancelled(true);
+				e.setUseItemInHand(Result.DENY);
+				e.setUseInteractedBlock(Result.DENY);
+			}
 		}
 	}
 
@@ -255,40 +260,43 @@ public class Crates extends JavaPlugin implements Listener {
 		if (e.getItemInHand().getType() == Material.CHEST
 				&& e.getItemInHand().getItemMeta().getDisplayName()
 						.equals(getConfig().getString("crate.display-name"))) {
-			if (e.canBuild()) {
-				Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-
-					@Override
-					public void run() {
-						if (e.isCancelled()) {
-							return;
-						}
-						placeCrate(e.getBlockPlaced().getLocation());
-						getConfig().set("crates.n",
-								getConfig().getInt("crates.n") + 1);
-					}
-				}, 2);
+			if (!e.canBuild()) {
+				return;
 			}
+			Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+
+				@Override
+				public void run() {
+					if (e.isCancelled()) {
+						return;
+					}
+					placeCrate(e.getBlockPlaced().getLocation());
+					getConfig().set("crates.n",
+							getConfig().getInt("crates.n") + 1);
+				}
+			}, 2);
+
 		} else if (e.getItemInHand().getType() == Material.TRAPPED_CHEST
 				&& e.getItemInHand()
 						.getItemMeta()
 						.getDisplayName()
 						.equals(getConfig()
 								.getString("endercrate.display-name"))) {
-			if (e.canBuild()) {
-				Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-
-					@Override
-					public void run() {
-						if (e.isCancelled()) {
-							return;
-						}
-						placeEnderCrate(e.getBlockPlaced().getLocation());
-						getConfig().set("endercrates.n",
-								getConfig().getInt("endercrates.n") + 1);
-					}
-				}, 2);
+			if (!e.canBuild()) {
+				return;
 			}
+			Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+
+				@Override
+				public void run() {
+					if (e.isCancelled()) {
+						return;
+					}
+					placeEnderCrate(e.getBlockPlaced().getLocation());
+					getConfig().set("endercrates.n",
+							getConfig().getInt("endercrates.n") + 1);
+				}
+			}, 2);
 		}
 	}
 
