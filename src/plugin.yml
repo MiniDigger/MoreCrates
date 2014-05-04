@@ -1,6 +1,6 @@
 name: MoreCrates
 author: MiniDigger
-version: 1.0.6
+version: 1.0.7
 main: me.MiniDigger.Crates.Crates
 commands:
     crate:
