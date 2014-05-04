@@ -49,7 +49,7 @@ public class Crate implements ConfigurationSerializable {
 	}
 
 	public void open(Player p) {
-		if (p.hasPermission("create.open")) {
+		if (p.hasPermission("crate.open")) {
 			p.openInventory(getInv());
 		}
 	}
