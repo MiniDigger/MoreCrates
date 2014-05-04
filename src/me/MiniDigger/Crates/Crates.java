@@ -19,6 +19,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -242,35 +243,45 @@ public class Crates extends JavaPlugin implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOW)
 	public void onCratePlace(final BlockPlaceEvent e) {
 		if (e.getItemInHand().getType() == Material.CHEST
 				&& e.getItemInHand().getItemMeta().getDisplayName()
 						.equals(getConfig().getString("crate.display-name"))) {
-			Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+			if (e.canBuild()) {
+				Bukkit.getScheduler().runTaskLater(this, new Runnable() {
 
-				@Override
-				public void run() {
-					placeCrate(e.getBlockPlaced().getLocation());
-					getConfig().set("crates.n",
-							getConfig().getInt("crates.n") + 1);
-				}
-			}, 1);
+					@Override
+					public void run() {
+						if (e.isCancelled()) {
+							return;
+						}
+						placeCrate(e.getBlockPlaced().getLocation());
+						getConfig().set("crates.n",
+								getConfig().getInt("crates.n") + 1);
+					}
+				}, 2);
+			}
 		} else if (e.getItemInHand().getType() == Material.TRAPPED_CHEST
 				&& e.getItemInHand()
 						.getItemMeta()
 						.getDisplayName()
 						.equals(getConfig()
 								.getString("endercrate.display-name"))) {
-			Bukkit.getScheduler().runTaskLater(this, new Runnable() {
+			if (e.canBuild()) {
+				Bukkit.getScheduler().runTaskLater(this, new Runnable() {
 
-				@Override
-				public void run() {
-					placeEnderCrate(e.getBlockPlaced().getLocation());
-					getConfig().set("endercrates.n",
-							getConfig().getInt("endercrates.n") + 1);
-				}
-			}, 1);
+					@Override
+					public void run() {
+						if (e.isCancelled()) {
+							return;
+						}
+						placeEnderCrate(e.getBlockPlaced().getLocation());
+						getConfig().set("endercrates.n",
+								getConfig().getInt("endercrates.n") + 1);
+					}
+				}, 2);
+			}
 		}
 	}
 
