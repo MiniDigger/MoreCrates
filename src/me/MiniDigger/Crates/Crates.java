@@ -217,7 +217,7 @@ public class Crates extends JavaPlugin implements Listener {
 				@Override
 				public void run() {
 					boolean b = false;
-					if(e.isCancelled()){
+					if (e.isCancelled()) {
 						return;
 					}
 					if (isCrate(e.getClickedBlock())) {
@@ -255,6 +255,11 @@ public class Crates extends JavaPlugin implements Listener {
 						.dropItem(e.getBlock().getLocation(), is);
 			}
 			getConfig().set("crates.n", getConfig().getInt("crates.n") - 1);
+			getConfig()
+					.set("crates."
+							+ Utils.LocationToString(e.getBlock().getLocation()),
+							null);
+			saveConfig();
 		} else if (isEnderCrate(e.getBlock())) {
 			e.setCancelled(true);
 			e.getBlock().setType(Material.AIR);
@@ -262,6 +267,7 @@ public class Crates extends JavaPlugin implements Listener {
 					.dropItem(e.getBlock().getLocation(), endercrate);
 			getConfig().set("endercrates.n",
 					getConfig().getInt("endercrates.n") - 1);
+			saveConfig();
 		}
 	}
 
