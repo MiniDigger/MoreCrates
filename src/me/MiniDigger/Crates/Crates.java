@@ -96,7 +96,7 @@ public class Crates extends JavaPlugin implements Listener {
 				getServer().addRecipe(cR);
 			}
 			try {
-				
+
 			} catch (Exception ex) {
 				getLogger().info(
 						"Failed to add Recipe for EnderCrates: "
@@ -227,6 +227,10 @@ public class Crates extends JavaPlugin implements Listener {
 	@EventHandler(priority = EventPriority.LOW)
 	public void onCrateClick(final PlayerInteractEvent e) {
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			if (!isCrate(e.getClickedBlock())
+					&& !isEnderCrate(e.getClickedBlock())) {
+				return;
+			}
 			Bukkit.getScheduler().runTaskLater(this, new Runnable() {
 
 				@Override
