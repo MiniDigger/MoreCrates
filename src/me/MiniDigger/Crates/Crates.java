@@ -38,8 +38,8 @@ import org.mcstats.Metrics.Plotter;
 
 public class Crates extends JavaPlugin implements Listener {
 
-	private ItemStack crate;
-	private ItemStack endercrate;
+	public ItemStack crate;
+	public ItemStack endercrate;
 	private static Crates instance;
 	private HashMap<UUID, Location> openCrates;
 	private final String consolPrefix = ChatColor.RED + "[" + ChatColor.GRAY
@@ -78,20 +78,35 @@ public class Crates extends JavaPlugin implements Listener {
 		endercrate.setItemMeta(meta);
 
 		if (getConfig().getBoolean("enable-crafting")) {
-			getLogger().info("Add Rezipies...");
-			ShapedRecipe cR = new ShapedRecipe(crate);
-			cR.shape("PXP", "XCX", "PXP");
-			cR.setIngredient('P', Material.getMaterial(33));
-			cR.setIngredient('C', Material.CHEST);
-			// cR.setIngredient('X', Material.AIR);
-			getServer().addRecipe(cR);
-
-			ShapedRecipe ecR = new ShapedRecipe(endercrate);
-			ecR.shape("PXP", "XCX", "PXP");
-			ecR.setIngredient('P', Material.getMaterial(29));
-			ecR.setIngredient('C', Material.ENDER_CHEST);
-			// ecR.setIngredient('X', Material.AIR);
-			getServer().addRecipe(ecR);
+			getLogger().info("Add Recipes...");
+			try {
+				ShapedRecipe cR = new ShapedRecipe(crate);
+				cR.shape("PXP", "XCX", "PXP");
+				cR.setIngredient('P', Material.getMaterial(33));
+				cR.setIngredient('C', Material.CHEST);
+				getServer().addRecipe(cR);
+			} catch (Exception ex) {
+				getLogger().info(
+						"Failed to add Recipe for Crates: " + ex.getMessage()
+								+ ", using default one!");
+				ShapedRecipe cR = new ShapedRecipe(crate);
+				cR.shape("PXP", "XCX", "PXP");
+				cR.setIngredient('P', Material.getMaterial(33));
+				cR.setIngredient('C', Material.CHEST);
+				getServer().addRecipe(cR);
+			}
+			try {
+				
+			} catch (Exception ex) {
+				getLogger().info(
+						"Failed to add Recipe for EnderCrates: "
+								+ ex.getMessage() + ", using default one!");
+				ShapedRecipe ecR = new ShapedRecipe(endercrate);
+				ecR.shape("PXP", "XCX", "PXP");
+				ecR.setIngredient('P', Material.getMaterial(29));
+				ecR.setIngredient('C', Material.ENDER_CHEST);
+				getServer().addRecipe(ecR);
+			}
 		}
 
 		openCrates = new HashMap<>();
