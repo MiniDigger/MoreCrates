@@ -4,6 +4,7 @@ look-for-updates: true
 download-updates: false
 enable-crafting: true
 use-perms-for-opening: true
+worldguard-support: false
 crate:
     #The Title of the Inventory and the display name of the item
     display-name: 'Crate'

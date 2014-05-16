@@ -18,10 +18,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -108,6 +108,8 @@ public class Crates extends JavaPlugin implements Listener {
 				getServer().addRecipe(ecR);
 			}
 		}
+
+		WorldGuardHook.getInstance().enableHook();
 
 		openCrates = new HashMap<>();
 		getLogger().info("Metrics...");
@@ -260,34 +262,45 @@ public class Crates extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
-	public void onCrateDestory(BlockBreakEvent e) {
-		if (isCrate(e.getBlock())) {
-			e.setCancelled(true);
-			e.getBlock().setType(Material.AIR);
-			e.getBlock().getWorld().dropItem(e.getBlock().getLocation(), crate);
-			for (ItemStack is : getCrate(e.getBlock().getLocation()).getInv()
-					.getContents()) {
-				if (is == null) {
-					continue;
+	public void onCrateDestory(final BlockBreakEvent e) {
+		Bukkit.getScheduler().runTaskLater(instance, new Runnable() {
+
+			@Override
+			public void run() {
+				if(e.isCancelled()){
+					return;
 				}
-				e.getBlock().getWorld()
-						.dropItem(e.getBlock().getLocation(), is);
+				if (isCrate(e.getBlock())) {
+					e.setCancelled(true);
+					e.getBlock().setType(Material.AIR);
+					e.getBlock().getWorld()
+							.dropItem(e.getBlock().getLocation(), crate);
+					for (ItemStack is : getCrate(e.getBlock().getLocation())
+							.getInv().getContents()) {
+						if (is == null) {
+							continue;
+						}
+						e.getBlock().getWorld()
+								.dropItem(e.getBlock().getLocation(), is);
+					}
+					getConfig().set("crates.n",
+							getConfig().getInt("crates.n") - 1);
+					getConfig().set(
+							"crates."
+									+ Utils.LocationToString(e.getBlock()
+											.getLocation()), null);
+					saveConfig();
+				} else if (isEnderCrate(e.getBlock())) {
+					e.setCancelled(true);
+					e.getBlock().setType(Material.AIR);
+					e.getBlock().getWorld()
+							.dropItem(e.getBlock().getLocation(), endercrate);
+					getConfig().set("endercrates.n",
+							getConfig().getInt("endercrates.n") - 1);
+					saveConfig();
+				}
 			}
-			getConfig().set("crates.n", getConfig().getInt("crates.n") - 1);
-			getConfig()
-					.set("crates."
-							+ Utils.LocationToString(e.getBlock().getLocation()),
-							null);
-			saveConfig();
-		} else if (isEnderCrate(e.getBlock())) {
-			e.setCancelled(true);
-			e.getBlock().setType(Material.AIR);
-			e.getBlock().getWorld()
-					.dropItem(e.getBlock().getLocation(), endercrate);
-			getConfig().set("endercrates.n",
-					getConfig().getInt("endercrates.n") - 1);
-			saveConfig();
-		}
+		}, 2);
 	}
 
 	@EventHandler(priority = EventPriority.LOW)

@@ -50,6 +50,18 @@ public class EnderCrate implements ConfigurationSerializable {
 	}
 
 	public void open(Player p) {
+		try {
+			if (!WorldGuardHook.getInstance().shouldOpen(p, p.getLocation())) {
+				return;
+			}
+		} catch (Exception ex) {
+			Crates.getInstance()
+					.getLogger()
+					.warning(
+							"Failed to check WorldGuard flags for player"
+									+ p.getName() + "! " + ex.getMessage());
+		}
+
 		if (!Crates.getInstance().getConfig()
 				.getBoolean("use-perms-for-opening")) {
 			p.openInventory(getInv());

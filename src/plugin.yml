@@ -2,6 +2,7 @@ name: MoreCrates
 author: MiniDigger
 version: 1.0.8
 main: me.MiniDigger.Crates.Crates
+softdepend: [WorldGuard]
 commands:
     crate:
       description: Adds a crate to your inventory or the the inventory of the specified player
