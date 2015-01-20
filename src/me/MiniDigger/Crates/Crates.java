@@ -16,7 +16,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -35,6 +34,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.mcstats.Metrics.Plotter;
+
+import saharnooby.plugins.MoreCrates.CrateFiles;
 
 public class Crates extends JavaPlugin implements Listener {
 
@@ -58,9 +59,6 @@ public class Crates extends JavaPlugin implements Listener {
 		saveDefaultConfig();
 		getLogger().info("Registering...");
 		getServer().getPluginManager().registerEvents(this, this);
-		ConfigurationSerialization.registerClass(Crate.class, "Crate");
-		ConfigurationSerialization
-				.registerClass(EnderCrate.class, "EnderCrate");
 
 		getLogger().info("Creating Crates...");
 		crate = new ItemStack(Material.CHEST);
@@ -228,150 +226,101 @@ public class Crates extends JavaPlugin implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onCrateClick(final PlayerInteractEvent e) {
-		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			if (!isCrate(e.getClickedBlock())
-					&& !isEnderCrate(e.getClickedBlock())) {
-				return;
-			}
-			Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-
-				@Override
-				public void run() {
-					boolean b = false;
-					if (e.isCancelled()) {
-						return;
-					}
-					if (isCrate(e.getClickedBlock())) {
-						openCrates.put(e.getPlayer().getUniqueId(), e
-								.getClickedBlock().getLocation());
-						getCrate(e.getClickedBlock().getLocation()).open(
-								e.getPlayer());
-						b = true;
-					} else if (isEnderCrate(e.getClickedBlock())) {
-						getEnderCrate(e.getPlayer()).open(e.getPlayer());
-						b = true;
-					}
-					if (b) {
-						e.setCancelled(true);
-						e.setUseItemInHand(Result.DENY);
-						e.setUseInteractedBlock(Result.DENY);
-					}
-				}
-			}, 2);
+		if (e.getAction() != Action.RIGHT_CLICK_BLOCK || e.isCancelled())
+			return;
+		
+		Block block = e.getClickedBlock();
+		
+		if (!isCrate(block) && !isEnderCrate(block))
+			return;
+			
+		Player player = e.getPlayer();
+		
+		boolean b = false;
+		if (isCrate(block)) {
+			openCrates.put(player.getUniqueId(), block.getLocation());
+			getCrate(block.getLocation()).open(player);
+			b = true;
+		} else if (isEnderCrate(block)) {
+			getEnderCrate(player).open(player);
+			b = true;
+		}
+		if (b) {
+			e.setCancelled(true);
+			e.setUseItemInHand(Result.DENY);
+			e.setUseInteractedBlock(Result.DENY);
 		}
 	}
 
 	@EventHandler
 	public void onCrateDestory(final BlockBreakEvent e) {
-		Bukkit.getScheduler().runTaskLater(instance, new Runnable() {
-
-			@Override
-			public void run() {
-				if(e.isCancelled()){
-					return;
+		if(e.isCancelled()) {
+			return;
+		}
+		
+		Block block = e.getBlock();
+		Location loc = block.getLocation();
+		
+		if (isCrate(block)) {
+			e.setCancelled(true);
+			Crate crate = getCrate(loc);
+			
+			block.setType(Material.AIR);
+			loc.getWorld().dropItem(loc, this.crate);
+			
+			for (ItemStack is : crate.getInv().getContents()) {
+				if (is == null) {
+					continue;
 				}
-				if (isCrate(e.getBlock())) {
-					e.setCancelled(true);
-					e.getBlock().setType(Material.AIR);
-					e.getBlock().getWorld()
-							.dropItem(e.getBlock().getLocation(), crate);
-					for (ItemStack is : getCrate(e.getBlock().getLocation())
-							.getInv().getContents()) {
-						if (is == null) {
-							continue;
-						}
-						e.getBlock().getWorld()
-								.dropItem(e.getBlock().getLocation(), is);
-					}
-					getConfig().set("crates.n",
-							getConfig().getInt("crates.n") - 1);
-					getConfig().set(
-							"crates."
-									+ Utils.LocationToString(e.getBlock()
-											.getLocation()), null);
-					saveConfig();
-				} else if (isEnderCrate(e.getBlock())) {
-					e.setCancelled(true);
-					e.getBlock().setType(Material.AIR);
-					e.getBlock().getWorld()
-							.dropItem(e.getBlock().getLocation(), endercrate);
-					getConfig().set("endercrates.n",
-							getConfig().getInt("endercrates.n") - 1);
-					saveConfig();
-				}
+				loc.getWorld().dropItem(loc, is);
 			}
-		}, 2);
+			
+			CrateFiles.removeCrate(crate);
+		} else if (isEnderCrate(block)) {
+			e.setCancelled(true);
+			
+			block.setType(Material.AIR);
+			loc.getWorld().dropItem(loc, endercrate);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOW)
 	public void onCratePlace(final BlockPlaceEvent e) {
+		if (e.isCancelled() || !e.canBuild()) {
+			return;
+		}
+		
+		Location loc = e.getBlockPlaced().getLocation();
+		ItemStack i = e.getItemInHand();
+		
 		try {
-			if (e.getItemInHand().getType() == Material.CHEST
-					&& e.getItemInHand()
-							.getItemMeta()
-							.getDisplayName()
-							.equals(getConfig().getString("crate.display-name"))) {
-				if (!e.canBuild()) {
-					return;
-				}
-				Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-
-					@Override
-					public void run() {
-						if (e.isCancelled()) {
-							return;
-						}
-						placeCrate(e.getBlockPlaced().getLocation());
-						getConfig().set("crates.n",
-								getConfig().getInt("crates.n") + 1);
-					}
-				}, 2);
-
-			} else if (e.getItemInHand().getType() == Material.TRAPPED_CHEST
-					&& e.getItemInHand()
-							.getItemMeta()
-							.getDisplayName()
-							.equals(getConfig().getString(
-									"endercrate.display-name"))) {
-				if (!e.canBuild()) {
-					return;
-				}
-				Bukkit.getScheduler().runTaskLater(this, new Runnable() {
-
-					@Override
-					public void run() {
-						if (e.isCancelled()) {
-							return;
-						}
-						placeEnderCrate(e.getBlockPlaced().getLocation());
-						getConfig().set("endercrates.n",
-								getConfig().getInt("endercrates.n") + 1);
-					}
-				}, 2);
+			if (i.getType() == crate.getType() &&
+					i.getItemMeta().getDisplayName().equals(getConfig().getString("crate.display-name"))) {
+				placeCrate(loc);
+			} else if (i.getType() == endercrate.getType() &&
+					i.getItemMeta().getDisplayName().equals(getConfig().getString("endercrate.display-name"))) {
+				placeEnderCrate(loc);
 			}
 		} catch (Exception ex) {
-			getLogger().warning(
-					"Failed to handle placement of crate!" + ex.getMessage()
-							+ " (" + ex.getClass().getName() + ")");
+			// No item meta
 		}
 	}
 
 	@EventHandler
 	public void onCrateClose(InventoryCloseEvent e) {
-		if (e.getInventory().getTitle()
-				.equals(getConfig().getString("crate.display-name"))) {
-			Crate crate = getCrate(openCrates.get(e.getPlayer().getUniqueId()));
-			openCrates.remove(e.getPlayer().getUniqueId());
+		UUID uuid = e.getPlayer().getUniqueId();
+		
+		if (e.getInventory().getTitle().equals(getConfig().getString("crate.display-name"))) {
+			Crate crate = getCrate(openCrates.get(uuid));
+			openCrates.remove(uuid);
 			crate.setInv(e.getInventory());
-			getConfig().set("crates." + e.getPlayer().getUniqueId(), crate);
-			saveConfig();
-		} else if (e.getInventory().getTitle()
-				.equals(getConfig().getString("endercrate.display-name"))) {
+			
+			CrateFiles.saveCrate(crate);
+		} else if (e.getInventory().getTitle().equals(getConfig().getString("endercrate.display-name"))) {
 			EnderCrate crate = getEnderCrate((Player) e.getPlayer());
 			crate.setInv(e.getInventory());
-			getConfig()
-					.set("endercrates." + e.getPlayer().getUniqueId(), crate);
-			saveConfig();
+			
+			CrateFiles.saveEnderCrate(crate);
 		}
 	}
 
@@ -569,63 +518,51 @@ public class Crates extends JavaPlugin implements Listener {
 		return false;
 	}
 
-	@SuppressWarnings("deprecation")
 	private void placeCrate(Location loc) {
 		loc.getBlock().setTypeIdAndData(33, (byte) 6, false);
 	}
 
-	@SuppressWarnings("deprecation")
+	
 	private void placeEnderCrate(Location loc) {
 		loc.getBlock().setTypeIdAndData(29, (byte) 6, false);
 	}
 
-	@SuppressWarnings("deprecation")
+	
 	private boolean isCrate(Block block) {
-		if (block.getTypeId() == 33 && block.getData() == 6) {
-			return true;
-		}
-		return false;
+		return block.getTypeId() == 33 && block.getData() == 6;
 	}
 
-	@SuppressWarnings("deprecation")
+	
 	private boolean isEnderCrate(Block block) {
-		if (block.getTypeId() == 29 && block.getData() == 6) {
-			return true;
-		}
-		return false;
+		return block.getTypeId() == 29 && block.getData() == 6;
 	}
 
+	/**
+	 * @see Crates#getCrate(Location)
+	 */
 	private EnderCrate getEnderCrate(Player p) {
-		EnderCrate crate = null;
-		Object o = getConfig().get("endercrates." + p.getUniqueId());
-		if (o == null) {
-			crate = new EnderCrate(p);
-			getConfig().set("endercrates." + p.getUniqueId(), crate);
-			saveConfig();
-		} else if (o instanceof EnderCrate) {
-			crate = (EnderCrate) o;
-		} else {
-			crate = new EnderCrate(p);
-			getConfig().set("endercrates." + p.getUniqueId(), crate);
-			saveConfig();
+		EnderCrate crate = CrateFiles.loadEnderCrate(p.getUniqueId());
+		
+		if (crate == null) {
+			crate = new EnderCrate(p.getUniqueId());
+			CrateFiles.saveEnderCrate(crate);
 		}
 
 		return crate;
 	}
 
+	
+	/**
+	 * Get crate on specified location. If crate file is not exists, it will be created.
+	 * @param loc Location.
+	 * @return Crate.
+	 */
 	private Crate getCrate(Location loc) {
-		Crate crate = null;
-		Object o = getConfig().get("crates." + Utils.LocationToString(loc));
-		if (o == null) {
+		Crate crate = CrateFiles.loadCrate(loc);
+		
+		if (crate == null) {
 			crate = new Crate(loc);
-			getConfig().set("crates." + Utils.LocationToString(loc), crate);
-			saveConfig();
-		} else if (o instanceof Crate) {
-			crate = (Crate) o;
-		} else {
-			crate = new Crate(loc);
-			getConfig().set("crates." + Utils.LocationToString(loc), crate);
-			saveConfig();
+			CrateFiles.saveCrate(crate);
 		}
 
 		return crate;
