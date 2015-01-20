@@ -55,11 +55,10 @@ public class Utils {
 	}
 
 	@SuppressWarnings("deprecation")
-	public static Inventory StringToInventory(String invString) {
+	public static Inventory StringToInventory(String invString, String name) {
 		String[] serializedBlocks = invString.split(";");
 		String invInfo = serializedBlocks[0];
-		Inventory deserializedInventory = Bukkit.getServer().createInventory(
-				null, Integer.valueOf(invInfo));
+		Inventory deserializedInventory = Bukkit.getServer().createInventory(null, Integer.valueOf(invInfo), name);
 
 		for (int i = 1; i < serializedBlocks.length; i++) {
 			String[] serializedBlock = serializedBlocks[i].split("#");
@@ -96,28 +95,23 @@ public class Utils {
 	}
 
 	public static Location StringToLocation(String locString) {
-		String[] split = locString.split(";");
+		String[] loc = locString.split(";");
 
-		World world = Bukkit.getWorld(split[0].replaceFirst("@l@w", ""));
-		double x = Integer.parseInt(split[1].replaceFirst("@x", ""));
-		double y = Integer.parseInt(split[2].replaceFirst("@y", ""));
-		double z = Integer.parseInt(split[3].replaceFirst("@z", ""));
+		World world = Bukkit.getWorld(loc[0]);
+		double x = Integer.parseInt(loc[1]);
+		double y = Integer.parseInt(loc[2]);
+		double z = Integer.parseInt(loc[3]);
 
-		float pitch = Integer.parseInt(split[4].replaceFirst("@p", ""));
-		float yaw = Integer.parseInt(split[5].replaceFirst("@yw", ""));
-
-		return new Location(world, x, y, z, pitch, yaw);
+		return new Location(world, x, y, z, 0, 0);
 	}
 
 	public static String LocationToString(Location loc) {
-		String result = "@l";
+		String result = "";
 
-		result += "@w" + loc.getWorld().getName() + ";";
-		result += "@x" + (int) loc.getX() + ";";
-		result += "@y" + (int) loc.getY() + ";";
-		result += "@z" + (int) loc.getZ() + ";";
-		result += "@p" + (int) loc.getPitch() + ";";
-		result += "@yw" + (int) loc.getYaw() + ";";
+		result += loc.getWorld().getName() + ";";
+		result += (int) loc.getX() + ";";
+		result += (int) loc.getY() + ";";
+		result += (int) loc.getZ();
 
 		return result;
 	}
