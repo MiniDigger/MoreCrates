@@ -1,5 +1,5 @@
 name: MoreCrates
-author: MiniDigger
+authors: [MiniDigger,saharNooby]
 version: 1.0.8
 main: me.MiniDigger.Crates.Crates
 softdepend: [WorldGuard]
