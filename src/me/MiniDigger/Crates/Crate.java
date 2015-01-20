@@ -1,52 +1,31 @@
 package me.MiniDigger.Crates;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-@SerializableAs("Crate")
-public class Crate implements ConfigurationSerializable {
+public class Crate {
 
 	private Location loc;
 	private Inventory inv;
 
+	private void createInv(Player player) {
+		inv = Bukkit.createInventory(
+				null,
+				Crates.getInstance().getConfig().getInt("crate.size") * 9,
+				Crates.getInstance().getConfig().getString("crate.display-name")
+			);
+	}
+	
 	public Crate(Location loc) {
 		this.loc = loc;
-		inv = Bukkit.createInventory(null, Crates.getInstance().getConfig()
-				.getInt("crate.size") * 9, Crates.getInstance().getConfig()
-				.getString("crate.display-name"));
+		createInv(null);
 	}
 
-	public Crate() {
-		inv = Bukkit.createInventory(null, Crates.getInstance().getConfig()
-				.getInt("crate.size") * 9, Crates.getInstance().getConfig()
-				.getString("crate.display-name"));
-	}
-
-	@Override
-	public Map<String, Object> serialize() {
-		Map<String, Object> result = new HashMap<>();
-
-		result.put("loc", Utils.LocationToString(loc));
-		result.put("inv", Utils.InventoryToString(inv));
-
-		return result;
-	}
-
-	public static Crate deserialize(Map<String, Object> arg) {
-		Crate result = new Crate();
-
-		result.loc = Utils.StringToLocation((String) arg.get("loc"));
-		result.inv = Utils.StringToInventory((String) arg.get("inv"));
-
-		return result;
+	private Crate() {
+		createInv(null);
 	}
 
 	public void open(Player p) {
