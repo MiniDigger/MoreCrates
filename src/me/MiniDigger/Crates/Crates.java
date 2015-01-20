@@ -43,6 +43,7 @@ public class Crates extends JavaPlugin implements Listener {
 	public ItemStack endercrate;
 	private static Crates instance;
 	private HashMap<UUID, Location> openCrates;
+	private boolean worldguard_hooked = false;
 	private final String consolPrefix = ChatColor.RED + "[" + ChatColor.GRAY
 			+ "MoreCrates" + ChatColor.RED + "]";
 
@@ -107,7 +108,10 @@ public class Crates extends JavaPlugin implements Listener {
 			}
 		}
 
-		WorldGuardHook.getInstance().enableHook();
+		if(Crates.getInstance().getServer().getPluginManager()
+				.getPlugin("WorldGuard")!=null){
+			WorldGuardHook.getInstance().enableHook();
+		}
 
 		openCrates = new HashMap<>();
 		getLogger().info("Metrics...");

@@ -18,7 +18,7 @@ public class WorldGuardHook {
 	private WorldGuardPlugin worldGuard;
 	private boolean protectCrates = false;
 
-	public void enableHook() {
+	public boolean enableHook() {
 		protectCrates = Crates.getInstance().getConfig()
 				.getBoolean("worldguard-support");
 		if (protectCrates) {
@@ -42,7 +42,7 @@ public class WorldGuardHook {
 				protectCrates = true;
 			}
 		}
-
+		return protectCrates;
 	}
 
 	public boolean shouldOpen(Player p, Location loc) {

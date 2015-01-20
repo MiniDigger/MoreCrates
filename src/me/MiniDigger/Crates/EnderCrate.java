@@ -36,8 +36,11 @@ public class EnderCrate {
 
 	public void open(Player p) {
 		try {
-			if (!WorldGuardHook.getInstance().shouldOpen(p, p.getLocation())) {
-				return;
+			if(Crates.getInstance().getServer().getPluginManager()
+					.getPlugin("WorldGuard")!=null){
+				if (!WorldGuardHook.getInstance().shouldOpen(p, p.getLocation())) {
+					return;
+				}
 			}
 		} catch (Exception ex) {
 			Crates.getInstance()

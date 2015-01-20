@@ -29,6 +29,21 @@ public class Crate {
 	}
 
 	public void open(Player p) {
+		try {
+			if(Crates.getInstance().getServer().getPluginManager()
+					.getPlugin("WorldGuard")!=null){
+				if (!WorldGuardHook.getInstance().shouldOpen(p, p.getLocation())) {
+					return;
+				}
+			}
+		} catch (Exception ex) {
+			Crates.getInstance()
+					.getLogger()
+					.warning(
+							"Failed to check WorldGuard flags for player"
+									+ p.getName() + "! " + ex.getMessage());
+		}
+		
 		if (!Crates.getInstance().getConfig()
 				.getBoolean("use-perms-for-opening")) {
 			p.openInventory(getInv());
